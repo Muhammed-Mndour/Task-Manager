@@ -117,7 +117,7 @@ Visit `http://localhost:8000/docs` for API docs.
 ```
 ├── Dockerfile
 ├── requirements.txt
-├── pyproject.toml
+├── README.md
 ├── src/
 │   ├── data/models.py        # SQLModel definitions & DB session
 │   ├── domain/schemas.py     # Pydantic models & enums
