@@ -2,10 +2,10 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 from sqlmodel import select, Session
-from typing import List, Annotated, Optional
+from typing import List, Annotated, Optional, Literal
 from src.data.models import Task, get_session
 from src.domain.schemas import (
-    TaskCreate ,
+    TaskCreate,
     TaskUpdate,
     TaskResponse,
     TaskStatus,
@@ -31,7 +31,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
     "/",
     response_model=TaskResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a new task"
+    summary="Create a new task",
 )
 def create_task(task: TaskCreate, session: SessionDep):
     return create_task_service(session, task)
@@ -48,9 +48,11 @@ def list_tasks(
         skip: int = 0,
         limit: int = 10,
         status: Optional[TaskStatus] = None,
-        priority: Optional[TaskPriority] = None
+        priority: Optional[TaskPriority] = None,
+        sort_by: Optional[Literal["created_at", "updated_at", "due_date"]] = None,
+        sort_order: Literal["asc", "desc"] = "asc"
 ):
-    return list_tasks_service(session, skip, limit, status, priority)
+    return list_tasks_service(session, skip, limit, status, priority,sort_by,sort_order)
 
 
 @router.get(
@@ -59,10 +61,7 @@ def list_tasks(
     status_code=status.HTTP_200_OK,
     summary="Get a task by ID",
 )
-def get_task(
-        session: SessionDep,
-        task_id: int
-):
+def get_task(session: SessionDep, task_id: int):
     task = get_task_service(session, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -73,51 +72,35 @@ def get_task(
     "/{task_id}",
     response_model=TaskResponse,
     status_code=status.HTTP_200_OK,
-    summary="Update an existing task"
+    summary="Update an existing task",
 )
-def update_task(
-        session: SessionDep,
-        task_id: int,
-        task_update: TaskUpdate
-):
+def update_task(session: SessionDep, task_id: int, task_update: TaskUpdate):
     task = update_task_service(session, task_id, task_update)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
+
 @router.delete(
-    "/{task_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete a task"
+    "/{task_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a task"
 )
-def delete_task(
-        session: SessionDep,
-        task_id: int
-):
+def delete_task(session: SessionDep, task_id: int):
     success = delete_task_service(session, task_id)
     if not success:
         raise HTTPException(status_code=404, detail="Task not found")
 
 
 @router.get(
-    "/status/{status}",
-    response_model=List[TaskResponse],
-    summary="Get tasks by status"
+    "/status/{status}", response_model=List[TaskResponse], summary="Get tasks by status"
 )
-def tasks_by_status(
-        session: SessionDep,
-        status: TaskStatus
-):
+def tasks_by_status(session: SessionDep, status: TaskStatus):
     return tasks_by_status_service(session, status)
 
 
 @router.get(
     "/priority/{priority}",
     response_model=List[TaskResponse],
-    summary="Get tasks by priority"
+    summary="Get tasks by priority",
 )
-def tasks_by_priority(
-        session: SessionDep,
-        priority: TaskPriority
-):
+def tasks_by_priority(session: SessionDep, priority: TaskPriority):
     return tasks_by_priority_service(session, priority)

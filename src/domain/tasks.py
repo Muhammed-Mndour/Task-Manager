@@ -1,14 +1,12 @@
-
-
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from fastapi import HTTPException
+from sqlalchemy import asc, desc
 from sqlmodel import Session, select
 
 from src.data.models import Task
 from src.domain.schemas import TaskCreate, TaskUpdate, TaskStatus, TaskPriority
-
 
 
 def create_task(session: Session, task: TaskCreate):
@@ -18,12 +16,15 @@ def create_task(session: Session, task: TaskCreate):
     session.refresh(db_task)
     return db_task
 
+
 def list_tasks(
         session: Session,
         skip: int = 0,
         limit: int = 10,
         status: Optional[TaskStatus] = None,
-        priority: Optional[TaskPriority] = None
+        priority: Optional[TaskPriority] = None,
+        sort_by: Optional[Literal["created_at", "updated_at", "due_date"]] = None,
+        sort_order: Literal["asc", "desc"] = "asc"
 ):
     query = select(Task)
 
@@ -33,6 +34,12 @@ def list_tasks(
     if priority is not None:
         query = query.where(Task.priority == priority)
 
+    if sort_by:
+        column = getattr(Task, sort_by) # Task.sort_by
+        order_fn = asc if sort_order == "asc" else desc
+        query = query.order_by(order_fn(column))
+
+
     query = query.offset(skip).limit(limit)
 
     tasks = session.exec(query).all()
@@ -40,19 +47,12 @@ def list_tasks(
     return tasks
 
 
-def get_task(
-        session: Session,
-        task_id: int
-):
+def get_task(session: Session, task_id: int):
     task = session.get(Task, task_id)
     return task
 
 
-def update_task(
-        session: Session,
-        task_id: int,
-        task_update: TaskUpdate
-):
+def update_task(session: Session, task_id: int, task_update: TaskUpdate):
     task = session.get(Task, task_id)
     if not task:
         return None
@@ -69,10 +69,7 @@ def update_task(
     return task
 
 
-def delete_task(
-        session: Session,
-        task_id: int
-):
+def delete_task(session: Session, task_id: int):
     task = session.get(Task, task_id)
     if not task:
         return False
@@ -81,17 +78,11 @@ def delete_task(
     return True
 
 
-def tasks_by_status(
-        session: Session,
-        status: TaskStatus
-):
+def tasks_by_status(session: Session, status: TaskStatus):
     tasks = session.exec(select(Task).where(Task.status == status)).all()
     return tasks
 
 
-def tasks_by_priority(
-        session: Session,
-        priority: TaskPriority
-):
+def tasks_by_priority(session: Session, priority: TaskPriority):
     tasks = session.exec(select(Task).where(Task.priority == priority)).all()
     return tasks
