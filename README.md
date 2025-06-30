@@ -20,8 +20,8 @@ A simple, containerized Task Management RESTful API built with **FastAPI**, **Py
 * [API Endpoints](#api-endpoints)
 * [Filtering, Sorting & Pagination](#filtering-sorting--pagination)
 * [Testing](#testing)
-* [Sample Data](#sample-data)
-* [License](#license)
+* [Sample Data (some API calls)](#sample-data-some-api-calls)
+* [API Documentation (Swagger UI)](#api-documentation-swagger-ui)
 
 ---
 
@@ -165,7 +165,7 @@ GET /tasks?status=pending&priority=high&sort_by=due_date&sort_order=asc&skip=0&l
 
 ## Testing
 
-### Sample Data(some API calls)
+### Sample Data (some API calls)
 
 Populate the API with sample tasks using the following API calls:
 
