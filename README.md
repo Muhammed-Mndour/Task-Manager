@@ -7,6 +7,7 @@ A simple, containerized Task Management RESTful API built with **FastAPI**, **Py
 ### Table of Contents
 
 * [Features](#features)
+* [Bonus Features](#bonus-features)
 * [Getting Started](#getting-started)
 
   * [Prerequisites](#prerequisites)
@@ -20,7 +21,6 @@ A simple, containerized Task Management RESTful API built with **FastAPI**, **Py
 * [Filtering, Sorting & Pagination](#filtering-sorting--pagination)
 * [Testing](#testing)
 * [Sample Data](#sample-data)
-* [Bonus Features](#bonus-features)
 * [License](#license)
 
 ---
